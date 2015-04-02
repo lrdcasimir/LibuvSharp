@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace LibuvSharp
 {
-	public class Udp : HandleBase, IMessageSender<UdpMessage>, IMessageReceiver<UdpReceiveMessage>
+	public class Udp : HandleBase, IMessageSender<UdpMessage>, IMessageReceiver
 	{
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		delegate void recv_start_callback_win(IntPtr handle, IntPtr nread, ref WindowsBufferStruct buf, IntPtr sockaddr, ushort flags);
@@ -22,16 +22,6 @@ namespace LibuvSharp
 
 		[DllImport("uv", CallingConvention = CallingConvention.Cdecl)]
 		static extern int uv_udp_bind(IntPtr handle, ref sockaddr_in6 sockaddr, short flags);
-
-		ByteBufferAllocatorBase allocator;
-		public ByteBufferAllocatorBase ByteBufferAllocator {
-			get {
-				return allocator ?? Loop.ByteBufferAllocator;
-			}
-			set {
-				allocator = value;
-			}
-		}
 
 		static recv_start_callback_win recv_start_cb_win;
 		static recv_start_callback_unix recv_start_cb_unix;
@@ -183,6 +173,7 @@ namespace LibuvSharp
 				return;
 			}
 
+			/*
 			if (Message != null) {
 				var ep = UV.GetIPEndPoint(sockaddr);
 
@@ -193,6 +184,7 @@ namespace LibuvSharp
 					}
 				}
 
+				// TODO: rewrite shit
 				var msg = new UdpReceiveMessage(
 					ep,
 					ByteBufferAllocator.Retrieve(n),
@@ -201,6 +193,13 @@ namespace LibuvSharp
 
 				Message(msg);
 			}
+			*/
+		}
+
+		public void Receive(ArraySegment<byte> buffer, Action<Exception, UdpReceiveMessage> message)
+		{
+			CheckDisposed();
+			//Console.WriteLine("ASD");
 		}
 
 		bool IsMapping(byte[] data)
@@ -227,15 +226,15 @@ namespace LibuvSharp
 			return new IPAddress(data);
 		}
 
-		public void Resume()
+		void Resume()
 		{
 			CheckDisposed();
 
 			int r;
 			if (UV.isUnix) {
-				r = uv_udp_recv_start_unix(NativeHandle, ByteBufferAllocator.AllocCallbackUnix, recv_start_cb_unix);
+				r = uv_udp_recv_start_unix(NativeHandle, alloc_unix, recv_start_cb_unix);
 			} else {
-				r = uv_udp_recv_start_win(NativeHandle, ByteBufferAllocator.AllocCallbackWin, recv_start_cb_win);
+				r = uv_udp_recv_start_win(NativeHandle, alloc_win, recv_start_cb_win);
 			}
 			Ensure.Success(r);
 		}
@@ -243,12 +242,10 @@ namespace LibuvSharp
 		[DllImport("uv", CallingConvention = CallingConvention.Cdecl)]
 		internal extern static int uv_udp_recv_stop(IntPtr handle);
 
-		public void Pause()
+		void Pause()
 		{
 			Invoke(uv_udp_recv_stop);
 		}
-
-		public event Action<UdpReceiveMessage> Message;
 
 		[DllImport("uv", CallingConvention = CallingConvention.Cdecl)]
 		static extern int uv_udp_set_ttl(IntPtr handle, int ttl);
