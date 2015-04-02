@@ -31,6 +31,7 @@ namespace LibuvSharp
 		{
 			public ArraySegment<byte> buf;
 			public Action<Exception, int> cb;
+			public Action<Exception, UdpReceiveMessage> ucb;
 			public int read;
 			public GCHandle gchandle;
 		}

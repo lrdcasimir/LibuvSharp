@@ -118,12 +118,12 @@ namespace LibuvSharp
 
 		static void read_callback(IntPtr streamPointer, IntPtr size)
 		{
-			var stream = FromIntPtr<UVStream>(streamPointer);
-
 			long nread = size.ToInt64();
 			if (nread == 0) {
 				return;
 			} else {
+				var stream = FromIntPtr<UVStream>(streamPointer);
+
 				var req = stream.readRequests.Dequeue();
 				req.gchandle.Free();
 				if (nread < 0) {
