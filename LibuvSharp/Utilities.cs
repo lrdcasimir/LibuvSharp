@@ -5,17 +5,18 @@ namespace LibuvSharp.Utilities
 {
 	public static class UtilitiesExtensions
 	{
-		public static Task PumpAsync<T>(this IUVStream<T> readStream, IUVStream<T> writeStream)
+		/*
+		public static Task PumpAsync(this IUVStream readStream, IUVStream writeStream)
 		{
 			return HelperFunctions.Wrap(writeStream, readStream.Pump);
 		}
 
-		public static void Pump<T>(this IUVStream<T> readStream, IUVStream<T> writeStream)
+		public static void Pump(this IUVStream readStream, IUVStream writeStream)
 		{
 			Pump(readStream, writeStream, null);
 		}
 
-		public static void Pump<T>(this IUVStream<T> readStream, IUVStream<T> writeStream, Action<Exception> callback)
+		public static void Pump(this IUVStream readStream, IUVStream writeStream, Action<Exception> callback)
 		{
 			bool pending = false;
 			bool done = false;
@@ -57,6 +58,7 @@ namespace LibuvSharp.Utilities
 
 			readStream.Resume();
 		}
+		*/
 	}
 }
 

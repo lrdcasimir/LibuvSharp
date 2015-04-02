@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -17,21 +18,23 @@ public static class Default
 
 static class AsyncExtensions
 {
-	public static async Task<string> ReadStringAsync(this IUVStream<ArraySegment<byte>> stream)
+	public static async Task<string> ReadStringAsync(this IUVStream stream)
 	{
 		return await ReadStringAsync(stream, Encoding.Default);
 	}
 
-	public static async Task<string> ReadStringAsync(this IUVStream<ArraySegment<byte>> stream, Encoding encoding)
+	public static async Task<string> ReadStringAsync(this IUVStream stream, Encoding encoding)
 	{
 		if (encoding == null) {
 			throw new ArgumentException("encoding");
 		}
-		var buffer = await stream.ReadStructAsync();
-		if (!buffer.HasValue) {
+
+		var buf = new byte[1024];
+		var n = await stream.ReadAsync(buf);
+		if (n == 0) {
 			return null;
 		}
-		return encoding.GetString(buffer.Value);
+		return encoding.GetString(buf, 0, n);
 	}
 }
 
@@ -40,16 +43,6 @@ public static class EncodingExtensions
 	public static string GetString(this Encoding encoding, ArraySegment<byte> segment)
 	{
 		return encoding.GetString(segment.Array, segment.Offset, segment.Count);
-	}
-
-	public static string GetString(this Encoding encoding, ArraySegment<byte>? segment)
-	{
-		if (!segment.HasValue) {
-			return null;
-		} else {
-			var value = segment.Value;
-			return encoding.GetString(value.Array, value.Offset, value.Count);
-		}
 	}
 }
 
@@ -111,5 +104,58 @@ public static class HashAlgorithmExtensions
 	public static void TransformFinalBlock(this HashAlgorithm hashAlgorithm, byte[] buffer)
 	{
 		hashAlgorithm.TransformFinalBlock(buffer, 0, buffer.Length);
+	}
+}
+
+public static class ArraySegmentExtensions
+{
+	public static bool IsEmpty<T>(this ArraySegment<T> segment)
+	{
+		return segment == default(ArraySegment<T>);
+	}
+
+	public static ArraySegment<T> Skip<T>(this ArraySegment<T> segment, int count)
+	{
+		if (segment.Count - count == 0) {
+			return default(ArraySegment<T>);
+		}
+
+		return new ArraySegment<T>(segment.Array, segment.Offset + count, segment.Count - count);
+	}
+
+	public static ArraySegment<T> SkipLast<T>(this ArraySegment<T> segment, int count)
+	{
+		return new ArraySegment<T>(segment.Array, segment.Offset, segment.Count - count);
+	}
+
+	public static ArraySegment<T> Take<T>(this ArraySegment<T> segment, int count)
+	{
+		return new ArraySegment<T>(segment.Array, segment.Offset, count);
+	}
+
+	public static ArraySegment<T> Take<T>(this ArraySegment<T> segment, int skip, int count)
+	{
+		return segment.Skip(skip).Take(count);
+	}
+
+	public static ArraySegment<T> TakeLast<T>(this ArraySegment<T> segment, int count)
+	{
+		return new ArraySegment<T>(segment.Array, segment.Offset + segment.Count - count, count);
+	}
+
+	public static ArraySegment<T> ToArraySegment<T>(this T[] array)
+	{
+		return new ArraySegment<T>(array);
+	}
+
+	public static ArraySegment<T> ToArraySegment<T>(this T[] array, int offset = -1, int count = -1)
+	{
+		if (offset == -1) {
+			offset = 0;
+		}
+		if (count == -1) {
+			count = array.Length;
+		}
+		return new ArraySegment<T>(array, offset, count);
 	}
 }
