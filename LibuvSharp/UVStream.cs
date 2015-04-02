@@ -105,26 +105,26 @@ namespace LibuvSharp
 		}
 
 		static read_callback_unix read_cb_unix;
-		static void read_callback_u(IntPtr stream, IntPtr size, UnixBufferStruct buf)
+		static void read_callback_u(IntPtr streamPointer, IntPtr size, UnixBufferStruct buf)
 		{
-			read_callback(stream, size);
+			var stream = FromIntPtr<UVStream>(streamPointer);
+			stream.read_callback(streamPointer, size);
 		}
 
 		static read_callback_win read_cb_win;
-		static void read_callback_w(IntPtr stream, IntPtr size, WindowsBufferStruct buf)
+		static void read_callback_w(IntPtr streamPointer, IntPtr size, WindowsBufferStruct buf)
 		{
-			read_callback(stream, size);
+			var stream = FromIntPtr<UVStream>(streamPointer);
+			stream.read_callback(streamPointer, size);
 		}
 
-		static void read_callback(IntPtr streamPointer, IntPtr size)
+		void read_callback(IntPtr stream, IntPtr size)
 		{
 			long nread = size.ToInt64();
 			if (nread == 0) {
 				return;
 			} else {
-				var stream = FromIntPtr<UVStream>(streamPointer);
-
-				var req = stream.readRequests.Dequeue();
+				var req = readRequests.Dequeue();
 				req.gchandle.Free();
 				if (nread < 0) {
 					if (UVException.Map((int)nread) == UVErrorCode.EOF) {
@@ -136,15 +136,15 @@ namespace LibuvSharp
 							req.cb(Ensure.Map((int)nread), 0);
 						}
 					}
-					stream.Close();
+					Close();
 				} else {
 					if (req.cb != null) {
 						req.cb(null, size.ToInt32());
 					}
 				}
 
-				if (stream.readRequests.Count <= 0) {
-					stream.Pause();
+				if (readRequests.Count <= 0) {
+					Pause();
 				}
 			}
 		}
