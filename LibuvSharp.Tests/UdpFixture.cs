@@ -11,7 +11,7 @@ namespace LibuvSharp.Tests
 		public void Run()
 		{
 			RunTest(Default.IPv4.IPEndPoint);
-			//RunTest(Default.IPv6.IPEndPoint);
+			RunTest(Default.IPv6.IPEndPoint);
 		}
 
 		public void RunTest(IPEndPoint ep)
