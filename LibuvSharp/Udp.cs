@@ -165,41 +165,68 @@ namespace LibuvSharp
 			var handle = FromIntPtr<Udp>(handlePointer);
 			handle.recv_start_callback(handlePointer, nread, sockaddr, flags);
 		}
-		void recv_start_callback(IntPtr handle, IntPtr nread, IntPtr sockaddr, ushort flags)
+		void recv_start_callback(IntPtr handle, IntPtr size, IntPtr sockaddr, ushort flags)
 		{
-			int n = (int)nread;
+			long nread = size.ToInt64();
 
-			if (n == 0) {
+			if (nread == 0) {
 				return;
-			}
+			} else {
+				var req = readRequests.Dequeue();
+				req.gchandle.Free();
+				if (nread < 0) {
+					if (UVException.Map((int)nread) == UVErrorCode.EOF) {
+						if (req.ucb != null) {
+							req.ucb(null, null);
+						}
+					} else {
+						if (req.ucb != null) {
+							req.ucb(Ensure.Map((int)nread), null);
+						}
+					}
+					Close();
+				} else {
+					if (req.ucb != null) {
+						var ep = UV.GetIPEndPoint(sockaddr);
 
-			/*
-			if (Message != null) {
-				var ep = UV.GetIPEndPoint(sockaddr);
+						if (dualstack && ep.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) {
+							var data = ep.Address.GetAddressBytes();
+							if (IsMapping(data)) {
+								ep = new IPEndPoint(GetMapping(data), ep.Port);
+							}
+						}
 
-				if (dualstack && ep.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) {
-					var data = ep.Address.GetAddressBytes();
-					if (IsMapping(data)) {
-						ep = new IPEndPoint(GetMapping(data), ep.Port);
+						req.ucb(
+							null,
+							new UdpReceiveMessage(
+								UV.GetIPEndPoint(sockaddr),
+								new ArraySegment<byte>(req.buf.Array, req.buf.Offset, size.ToInt32()),
+								(flags & (short)uv_udp_flags.UV_UDP_PARTIAL) > 0
+							)
+						);
 					}
 				}
 
-				// TODO: rewrite shit
-				var msg = new UdpReceiveMessage(
-					ep,
-					ByteBufferAllocator.Retrieve(n),
-					(flags & (short)uv_udp_flags.UV_UDP_PARTIAL) > 0
-				);
-
-				Message(msg);
+				if (readRequests.Count <= 0) {
+					Pause();
+				}
 			}
-			*/
 		}
 
 		public void Receive(ArraySegment<byte> buffer, Action<Exception, UdpReceiveMessage> message)
 		{
 			CheckDisposed();
-			//Console.WriteLine("ASD");
+
+			readRequests.Enqueue(new ReadRequest() {
+				buf = buffer,
+				ucb = message
+			});
+
+			if (readRequests.Count == 1) {
+				// TODO: quick hack, investigate this, Fibonacci example
+				// is crashing if I do not have this
+				try { Resume(); } catch { }
+			}
 		}
 
 		bool IsMapping(byte[] data)
