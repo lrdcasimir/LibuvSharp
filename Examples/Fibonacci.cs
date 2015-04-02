@@ -34,7 +34,13 @@ namespace Test
 		public static void Main(string[] args)
 		{
 			var stdin = new TTY(0);
-			stdin.Read(Encoding.ASCII, (str) => {
+			var buffer = new ArraySegment<byte>(new byte[8 * 1024]);
+			Action<Exception, int> OnData = null;
+			OnData = (exception, nread) => {
+				if (nread == 0) {
+					return;
+				}
+				var str = Encoding.Default.GetString(buffer.Take(nread));
 				str = str.TrimEnd(new char[] { '\r', '\n' });
 				if (str.StartsWith("fib ")) {
 					int n;
@@ -44,6 +50,7 @@ namespace Test
 					}
 					TimeSpan span = TimeSpan.Zero;
 					BigInteger res = 0;
+					Console.WriteLine("{0}: fib({1}) starting", span, n);
 					Loop.Default.QueueUserWorkItem(() => {
 						var stopwatch = Stopwatch.StartNew();
 						res = Fibonacci(n);
@@ -53,6 +60,7 @@ namespace Test
 						Console.WriteLine("{0}: fib({1}) = {2}", span, n, res);
 					});
 				} else if (str == "quit") {
+					Loop.Default.Stop();
 					stdin.Close();
 				} else if (str == "help") {
 					Console.WriteLine("Available commands: ");
@@ -62,8 +70,9 @@ namespace Test
 				} else {
 					Console.WriteLine("Unknown command");
 				}
-			});
-			stdin.Resume();
+				stdin.Read(buffer, OnData);
+			};
+			stdin.Read(buffer, OnData);
 			Loop.Default.Run();
 		}
 	}
