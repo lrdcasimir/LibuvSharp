@@ -56,12 +56,12 @@ namespace LibuvSharp.Threading.Tasks
 			return HelperFunctions.Wrap<string, int>(text, stream.Write);
 		}
 
+		#endregion
+
 		public static Task ShutdownAsync(this IUVStream stream)
 		{
 			return HelperFunctions.Wrap(stream.Shutdown);
 		}
-
-		#endregion
 	}
 }
 
