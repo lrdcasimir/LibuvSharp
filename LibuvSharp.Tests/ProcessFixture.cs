@@ -40,7 +40,7 @@ namespace LibuvSharp.Tests
 			Loop.Default.Run();
 		}
 
-		//[Fact]
+		[Fact]
 		public void ProcessSpawnAsync()
 		{
 			Loop.Default.Run(async () => {
