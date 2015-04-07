@@ -31,6 +31,11 @@ namespace LibuvSharp.Threading.Tasks
 
 		#region Write
 
+		public static Task WriteAsync(this IUVStream stream, ArraySegment<byte> data)
+		{
+			return HelperFunctions.Wrap(data, stream.Write);
+		}
+
 		public static Task WriteAsync(this IUVStream stream, byte[] data, int index, int count)
 		{
 			return HelperFunctions.Wrap(data, index, count, stream.Write);
