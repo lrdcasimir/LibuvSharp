@@ -109,53 +109,8 @@ public static class HashAlgorithmExtensions
 
 public static class ArraySegmentExtensions
 {
-	public static bool IsEmpty<T>(this ArraySegment<T> segment)
-	{
-		return segment == default(ArraySegment<T>);
-	}
-
-	public static ArraySegment<T> Skip<T>(this ArraySegment<T> segment, int count)
-	{
-		if (segment.Count - count == 0) {
-			return default(ArraySegment<T>);
-		}
-
-		return new ArraySegment<T>(segment.Array, segment.Offset + count, segment.Count - count);
-	}
-
-	public static ArraySegment<T> SkipLast<T>(this ArraySegment<T> segment, int count)
-	{
-		return new ArraySegment<T>(segment.Array, segment.Offset, segment.Count - count);
-	}
-
 	public static ArraySegment<T> Take<T>(this ArraySegment<T> segment, int count)
 	{
 		return new ArraySegment<T>(segment.Array, segment.Offset, count);
-	}
-
-	public static ArraySegment<T> Take<T>(this ArraySegment<T> segment, int skip, int count)
-	{
-		return segment.Skip(skip).Take(count);
-	}
-
-	public static ArraySegment<T> TakeLast<T>(this ArraySegment<T> segment, int count)
-	{
-		return new ArraySegment<T>(segment.Array, segment.Offset + segment.Count - count, count);
-	}
-
-	public static ArraySegment<T> ToArraySegment<T>(this T[] array)
-	{
-		return new ArraySegment<T>(array);
-	}
-
-	public static ArraySegment<T> ToArraySegment<T>(this T[] array, int offset = -1, int count = -1)
-	{
-		if (offset == -1) {
-			offset = 0;
-		}
-		if (count == -1) {
-			count = array.Length;
-		}
-		return new ArraySegment<T>(array, offset, count);
 	}
 }
