@@ -1,7 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
 using LibuvSharp.Threading;
 using LibuvSharp.Threading.Tasks;
 using Xunit;
@@ -16,6 +19,9 @@ namespace LibuvSharp.Tests
 		{
 			TestCanSendHandles(Default.Pipename, Default.IPv4.IPEndPoint);
 			TestCanSendHandles(Default.Pipename, Default.IPv6.IPEndPoint);
+
+			TestCanSendHandlesMix(Default.Pipename, Default.IPv4.IPEndPoint);
+			TestCanSendHandlesMix(Default.Pipename, Default.IPv6.IPEndPoint);
 		}
 
 		void TestCanSendHandles(string pipename, IPEndPoint ipep)
@@ -75,6 +81,58 @@ namespace LibuvSharp.Tests
 
 			Assert.Equal(3, count);
 		}
+		static void TestCanSendHandlesMix(string pipename, IPEndPoint ipep)
+		{
+			Loop.Default.Run(async () => {
+				await Task.Run(() => File.Delete(pipename));
+
+				var handles = new Stack<Handle>();
+				var pipelistener = new IPCPipeListener();
+				pipelistener.Bind(pipename);
+				pipelistener.Connection += async () => {
+					using (var client = pipelistener.Accept()) {
+						var buffer = new ArraySegment<byte>(new byte[1024]);
+						do {
+							int n = await client.ReadAsync(buffer);
+							var str = Encoding.Default.GetString(buffer.Take(n));
+							var handle = client.Accept();
+							Assert.Equal(str, handle.GetType().ToString().Split('.').Last());
+							handles.Push(handle);
+						} while (handles.Count != 3);
+					}
+					foreach (var handle in handles) {
+						handle.Dispose();
+					}
+					pipelistener.Dispose();
+				};
+				pipelistener.Listen();
+
+				using (var pipe = new IPCPipe()) {
+					await pipe.ConnectAsync(pipename);
+
+					var tcplistener = new TcpListener();
+					tcplistener.Bind(ipep);
+					tcplistener.Connection += async () => {
+						using (var client = tcplistener.Accept()) {
+							await pipe.WriteAsync(client, "Tcp");
+						}
+						tcplistener.Close();
+					};
+					tcplistener.Listen();
+
+					var tcp = new Tcp();
+					await tcp.ConnectAsync(ipep);
+					tcp.Write("HELLO WORLD");
+
+					using (var udp = new Udp()) {
+						udp.Bind(ipep);
+						await pipe.WriteAsync(udp, "Udp");
+					}
+					await pipe.WriteAsync(pipe, "Pipe");
+				}
+			});
+		}
+
 	}
 }
 
