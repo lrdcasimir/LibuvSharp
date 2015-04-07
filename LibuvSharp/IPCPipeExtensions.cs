@@ -41,12 +41,12 @@ namespace LibuvSharp
 		public static int Write(this IPCPipe pipe, Handle handle, Encoding enc, string text, Action<Exception> callback)
 		{
 			var bytes = enc.GetBytes(text);
-			pipe.Write(bytes, callback);
+			pipe.Write(handle, bytes, callback);
 			return bytes.Length;
 		}
 		public static int Write(this IPCPipe pipe, Handle handle, string text, Action<Exception> callback)
 		{
-			return pipe.Write(Encoding.Default, text, callback);
+			return pipe.Write(handle, Encoding.Default, text, callback);
 		}
 		public static int Write(this IPCPipe pipe, Handle handle, Encoding enc, string text)
 		{
