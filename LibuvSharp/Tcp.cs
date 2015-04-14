@@ -61,7 +61,7 @@ namespace LibuvSharp
 			get {
 				CheckDisposed();
 
-				return UV.GetSockname(this, NativeMethods.uv_tcp_getsockname);
+				return UV.GetSockname(this, NativeMethods.uv_tcp_getsockname, true);
 			}
 		}
 	}
@@ -133,7 +133,7 @@ namespace LibuvSharp
 			get {
 				CheckDisposed();
 
-				return UV.GetSockname(this, NativeMethods.uv_tcp_getsockname);
+				return UV.GetSockname(this, NativeMethods.uv_tcp_getsockname, true);
 			}
 		}
 
@@ -141,7 +141,7 @@ namespace LibuvSharp
 			get {
 				CheckDisposed();
 
-				return UV.GetSockname(this, uv_tcp_getpeername);
+				return UV.GetSockname(this, uv_tcp_getpeername, true);
 			}
 		}
 	}

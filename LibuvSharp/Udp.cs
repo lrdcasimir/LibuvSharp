@@ -186,13 +186,6 @@ namespace LibuvSharp
 					if (req.ucb != null) {
 						var ep = UV.GetIPEndPoint(sockaddr);
 
-						if (dualstack && ep.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) {
-							var data = ep.Address.GetAddressBytes();
-							if (IsMapping(data)) {
-								ep = new IPEndPoint(GetMapping(data), ep.Port);
-							}
-						}
-
 						req.ucb(null, ep, size.ToInt32(), (flags & (short)uv_udp_flags.UV_UDP_PARTIAL) > 0);
 					}
 				}
@@ -217,30 +210,6 @@ namespace LibuvSharp
 				// is crashing if I do not have this
 				try { Resume(); } catch { }
 			}
-		}
-
-		bool IsMapping(byte[] data)
-		{
-			if (data.Length != 16) {
-				return false;
-			}
-
-			for (int i = 0; i < 10; i++) {
-				if (data[i] != 0) {
-					return false;
-				}
-			}
-
-			return data[10] == data[11] && data[11] == 0xff;
-		}
-
-		IPAddress GetMapping(byte[] data)
-		{
-			var ip = new byte[4];
-			for (int i = 0; i < 4; i++) {
-				ip[i] = data[12 + i];
-			}
-			return new IPAddress(ip);
 		}
 
 		void Resume()
@@ -309,7 +278,7 @@ namespace LibuvSharp
 			get {
 				CheckDisposed();
 
-				return UV.GetSockname(this, uv_udp_getsockname);
+				return UV.GetSockname(this, uv_udp_getsockname, dualstack);
 			}
 		}
 
