@@ -39,6 +39,23 @@ namespace LibuvSharp
 
 		#endregion
 
+		#region IPAddress
+
+		public static int TrySend<TEndPoint>(this ITrySend<TEndPoint> sender, TEndPoint endPoint, byte[] data)
+		{
+			Ensure.ArgumentNotNull(data, "data");
+			return sender.TrySend(endPoint, data, 0, data.Length);
+		}
+
+		public static int TrySend<TEndPoint>(this ITrySend<TEndPoint> sender, TEndPoint endPoint, byte[] data, int index, int count)
+		{
+			Ensure.ArgumentNotNull(data, "data");
+			Ensure.ArgumentNotNull(endPoint, "endPoint");
+			return sender.TrySend(endPoint, new ArraySegment<byte>(data, index, count));
+		}
+
+		#endregion
+
 		public static int TrySend(this ITrySend<IPEndPoint> sender, UdpMessage message)
 		{
 			return sender.TrySend(message.EndPoint, message.Payload);
