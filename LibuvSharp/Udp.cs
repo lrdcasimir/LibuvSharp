@@ -193,12 +193,7 @@ namespace LibuvSharp
 							}
 						}
 
-						req.ucb(
-							null,
-							UV.GetIPEndPoint(sockaddr),
-							size.ToInt32(),
-							(flags & (short)uv_udp_flags.UV_UDP_PARTIAL) > 0
-						);
+						req.ucb(null, ep, size.ToInt32(), (flags & (short)uv_udp_flags.UV_UDP_PARTIAL) > 0);
 					}
 				}
 
