@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace LibuvSharp
 {
-	public class Udp : HandleBase, IDatagram<IPEndPoint>, ITrySend<IPEndPoint>
+	public class Udp : HandleBase, IDatagram<IPEndPoint>, ITrySend<IPEndPoint>, IBindable<Udp, IPEndPoint>
 	{
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		delegate void recv_start_callback_win(IntPtr handle, IntPtr nread, ref WindowsBufferStruct buf, IntPtr sockaddr, ushort flags);
