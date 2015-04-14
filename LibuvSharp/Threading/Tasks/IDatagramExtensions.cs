@@ -46,6 +46,25 @@ namespace LibuvSharp.Threading.Tasks
 		{
 			return HelperFunctions.Wrap(message.EndPoint, message.Payload, sender.Send);
 		}
+
+		#region Receive
+
+		public static Task<UdpReceiveMessage> ReceiveAsync(this IDatagram<IPEndPoint> sender, ArraySegment<byte> data)
+		{
+			return HelperFunctions.Wrap<ArraySegment<byte>, UdpReceiveMessage>(data, sender.Receive);
+		}
+
+		public static Task<UdpReceiveMessage> ReceiveAsync(this IDatagram<IPEndPoint> sender, byte[] data)
+		{
+			return HelperFunctions.Wrap<byte[], UdpReceiveMessage>(data, sender.Receive);
+		}
+
+		public static Task<UdpReceiveMessage> ReceiveAsync(this IDatagram<IPEndPoint> sender, byte[] data, int index, int count)
+		{
+			return HelperFunctions.Wrap<byte[], int, int, UdpReceiveMessage>(data, index, count, sender.Receive);
+		}
+
+		#endregion
 	}
 }
 
