@@ -245,7 +245,7 @@ namespace LibuvSharp
 			for (int i = 0; i < 4; i++) {
 				ip[i] = data[12 + i];
 			}
-			return new IPAddress(data);
+			return new IPAddress(ip);
 		}
 
 		void Resume()
