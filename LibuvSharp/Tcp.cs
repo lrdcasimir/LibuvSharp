@@ -26,21 +26,21 @@ namespace LibuvSharp
 		[DllImport("uv", CallingConvention = CallingConvention.Cdecl)]
 		internal static extern int uv_tcp_bind(IntPtr handle, ref sockaddr_in6 sockaddr, uint flags);
 
+		void Bind(IPAddress ipAddress, int port, bool dualstack)
+		{
+			UV.Bind(this, uv_tcp_bind, uv_tcp_bind, ipAddress, port, dualstack);
+		}
+
+		public void Bind(int port)
+		{
+			Bind(IPAddress.IPv6Any, port, true);
+		}
+
 		public void Bind(IPEndPoint ipEndPoint)
 		{
-			CheckDisposed();
-
 			Ensure.ArgumentNotNull(ipEndPoint, "ipEndPoint");
-			Ensure.AddressFamily(ipEndPoint.Address);
-			int r;
-			if (ipEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) {
-				sockaddr_in address = UV.ToStruct(ipEndPoint.Address.ToString(), ipEndPoint.Port);
-				r = uv_tcp_bind(NativeHandle, ref address, 0);
-			} else {
-				sockaddr_in6 address = UV.ToStruct6(ipEndPoint.Address.ToString(), ipEndPoint.Port);
-				r = uv_tcp_bind(NativeHandle, ref address, 0);
-			}
-			Ensure.Success(r);
+
+			Bind(ipEndPoint.Address, ipEndPoint.Port, true);
 		}
 
 		protected override UVStream Create()

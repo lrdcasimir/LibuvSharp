@@ -74,7 +74,7 @@ namespace LibuvSharp
 		[DllImport("uv", CallingConvention = CallingConvention.Cdecl)]
 		internal extern static int uv_ip6_name(IntPtr src, byte[] dst, IntPtr size);
 
-		unsafe internal static IPEndPoint GetIPEndPoint(IntPtr sockaddr)
+		unsafe internal static IPEndPoint GetIPEndPoint(IntPtr sockaddr, bool map = false)
 		{
 			sockaddr *sa = (sockaddr *)sockaddr;
 			byte[] addr = new byte[64];
@@ -93,6 +93,12 @@ namespace LibuvSharp
 
 			IPAddress ip = IPAddress.Parse(System.Text.Encoding.ASCII.GetString(addr, 0, i));
 
+			if (map && ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) {
+				var data = ip.GetAddressBytes();
+				if (IsMapping(data)) {
+					ip = GetMapping(data);
+				}
+			}
 			return new IPEndPoint(ip, ntohs(sa->sin_port));
 		}
 
@@ -225,18 +231,7 @@ namespace LibuvSharp
 			int length = sizeof(sockaddr_in6);
 			int r = getsockname(handle.NativeHandle, ptr, ref length);
 			Ensure.Success(r);
-			return Map(UV.GetIPEndPoint(ptr), map);
-		}
-
-		static IPEndPoint Map(IPEndPoint ep, bool map)
-		{
-			if (map && ep.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) {
-				var data = ep.Address.GetAddressBytes();
-				if (IsMapping(data)) {
-					ep = new IPEndPoint(GetMapping(data), ep.Port);
-				}
-			}
-			return ep;
+			return UV.GetIPEndPoint(ptr, map);
 		}
 
 		static bool IsMapping(byte[] data)
@@ -263,6 +258,25 @@ namespace LibuvSharp
 			return new IPAddress(ip);
 		}
 
+
+		internal delegate int bind(IntPtr handle, ref sockaddr_in sockaddr, uint flags);
+		internal delegate int bind6(IntPtr handle, ref sockaddr_in6 sockaddr, uint flags);
+
+		internal static bool Bind(Handle handle, bind bind, bind6 bind6, IPAddress ipAddress, int port, bool dualstack)
+		{
+			Ensure.AddressFamily(ipAddress);
+
+			int r;
+			if (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) {
+				sockaddr_in address = UV.ToStruct(ipAddress.ToString(), port);
+				r = bind(handle.NativeHandle, ref address, (uint)(dualstack ? 0 : 1));
+			} else {
+				sockaddr_in6 address = UV.ToStruct6(ipAddress.ToString(), port);
+				r = bind6(handle.NativeHandle, ref address, 0);
+			}
+			Ensure.Success(r);
+			return dualstack;
+		}
 
 		internal delegate int callback(IntPtr handle, ref IntPtr size);
 
