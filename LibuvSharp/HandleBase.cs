@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -31,7 +32,7 @@ namespace LibuvSharp
 		{
 			public ArraySegment<byte> buf;
 			public Action<Exception, int> cb;
-			public Action<Exception, UdpReceiveMessage> ucb;
+			public Action<Exception, IPEndPoint, int, bool> ucb;
 			public int read;
 			public GCHandle gchandle;
 		}

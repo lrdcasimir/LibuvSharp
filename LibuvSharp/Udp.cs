@@ -174,11 +174,11 @@ namespace LibuvSharp
 				if (nread < 0) {
 					if (UVException.Map((int)nread) == UVErrorCode.EOF) {
 						if (req.ucb != null) {
-							req.ucb(null, null);
+							req.ucb(null, null, 0, false);
 						}
 					} else {
 						if (req.ucb != null) {
-							req.ucb(Ensure.Map((int)nread), null);
+							req.ucb(Ensure.Map((int)nread), null, 0, false);
 						}
 					}
 					Close();
@@ -195,11 +195,9 @@ namespace LibuvSharp
 
 						req.ucb(
 							null,
-							new UdpReceiveMessage(
-								UV.GetIPEndPoint(sockaddr),
-								new ArraySegment<byte>(req.buf.Array, req.buf.Offset, size.ToInt32()),
-								(flags & (short)uv_udp_flags.UV_UDP_PARTIAL) > 0
-							)
+							UV.GetIPEndPoint(sockaddr),
+							size.ToInt32(),
+							(flags & (short)uv_udp_flags.UV_UDP_PARTIAL) > 0
 						);
 					}
 				}
@@ -210,7 +208,7 @@ namespace LibuvSharp
 			}
 		}
 
-		public void Receive(ArraySegment<byte> buffer, Action<Exception, UdpReceiveMessage> message)
+		public void Receive(ArraySegment<byte> buffer, Action<Exception, IPEndPoint, int, bool> message)
 		{
 			CheckDisposed();
 
