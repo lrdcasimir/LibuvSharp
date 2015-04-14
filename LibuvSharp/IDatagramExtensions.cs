@@ -107,6 +107,20 @@ namespace LibuvSharp
 		{
 			sender.Send(endPoint, data, null);
 		}
+
+		#region Receive
+
+		public static void Receive<TEndPoint>(this IDatagram<TEndPoint> receiver, byte[] data, Action<Exception, UdpReceiveMessage> callback)
+		{
+			receiver.Receive(new ArraySegment<byte>(data), callback);
+		}
+
+		public static void Receive<TEndPoint>(this IDatagram<TEndPoint> receiver, byte[] data, int index, int count, Action<Exception, UdpReceiveMessage> callback)
+		{
+			receiver.Receive(new ArraySegment<byte>(data, index, count), callback);
+		}
+
+		#endregion
 	}
 }
 
