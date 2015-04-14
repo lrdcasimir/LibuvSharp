@@ -56,7 +56,7 @@ namespace LibuvSharp
 
 		#endregion
 
-		public static int TrySend(this ITrySend<IPEndPoint> sender, UdpMessage message)
+		public static int TrySend<TEndPoint>(this ITrySend<TEndPoint> sender, IMessage<TEndPoint, ArraySegment<byte>> message)
 		{
 			return sender.TrySend(message.EndPoint, message.Payload);
 		}
