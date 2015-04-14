@@ -210,7 +210,7 @@ namespace LibuvSharp
 			}
 		}
 
-		public void Receive(ArraySegment<byte> buffer, Action<Exception, UdpMessage> message)
+		public void Receive(ArraySegment<byte> buffer, Action<Exception, UdpReceiveMessage> message)
 		{
 			CheckDisposed();
 
