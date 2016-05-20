@@ -89,7 +89,7 @@ namespace Test
 		{
 			Loop.Default.Run(async () => {
 				var tcp = new Tcp();
-				await tcp.ConnectAsync(Dns.GetHostAddressesAsync, "ip.bentkus.eu", 80);
+				await tcp.ConnectAsync((Func<string, Task<IPAddress[]>>)Dns.GetHostAddressesAsync, "ip.bentkus.eu", 80);
 				tcp.TryWrite("GET / HTTP/1.1\r\nHost: ip.bentkus.eu\r\n\r\n");
 				var data = await tcp.ReadStructAsync();
 				if (data.HasValue) {
