@@ -178,7 +178,7 @@
     <Content Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' " Include="..\libuv_build\win\x64\Debug\msvcr120d.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' " Include="..\libuv_build\win\x64\Debug\msvcr120.dll">
+    <Content Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' " Include="..\libuv_build\win\x64\Release\msvcr120.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
