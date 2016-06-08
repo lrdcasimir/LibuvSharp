@@ -169,5 +169,17 @@
     <Content Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Include="..\libuv_build\win\x64\Release\libuv.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' " Include="..\libuv_build\win\x86\Debug\msvcr120d.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' " Include="..\libuv_build\win\x86\Release\msvcr120.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' " Include="..\libuv_build\win\x64\Debug\msvcr120d.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' " Include="..\libuv_build\win\x64\Debug\msvcr120.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
