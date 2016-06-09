@@ -157,16 +157,16 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
   <ItemGroup>
-    <Content Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' " Include="..\libuv_build\win\x86\Debug\libuv.dll">
+    <Content Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' " Include="..\libuv_build\win\x86\Debug\uv.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' " Include="..\libuv_build\win\x86\Release\libuv.dll">
+    <Content Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' " Include="..\libuv_build\win\x86\Release\uv.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Include="..\libuv_build\win\x64\Debug\libuv.dll">
+    <Content Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Include="..\libuv_build\win\x64\Debug\uv.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Include="..\libuv_build\win\x64\Release\libuv.dll">
+    <Content Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Include="..\libuv_build\win\x64\Release\uv.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' " Include="..\libuv_build\win\x86\Debug\msvcr120d.dll">
